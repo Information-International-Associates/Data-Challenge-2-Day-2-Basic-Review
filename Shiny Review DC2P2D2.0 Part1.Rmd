@@ -1,0 +1,155 @@
+---
+title: "R/Shiny Review- Data Challenge 2 Phase 2"
+author: "Sumit Dhar"
+date: "10/18/2020"
+output: slidy_presentation
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Objective
+
+* Consider this as a 101 'nuts & bolts' session
+* Build Shiny Apps based on R/Shiny 
+  Understand the various pieces of the standard template
+* Customize Reactions
+  We cover more details in the afternoon session where we cover interactiosn between LpSolve/ LpSolveAPI and Shiny
+* Provide quick inputs to build Optimization App/ Simulator in R Shiny  
+
+## 1. The Basic Template  
+
+Shortest viable R/Shiny App...
+```{r echo= TRUE}
+# Load Shiny
+library(shiny)
+# Create the UI with HTML function
+ui <- fluidPage(
+  # Input() Functions,
+  # Output() Functions
+)
+#Create a custom function to create server
+server <- function(input, output, session){}  
+shinyApp(ui= ui, server= server)
+```
+
+## 2. Inputs: With an Input() Function  
+
+```{r results='asis'}
+library(shiny)
+# Create the UI with HTML function
+sliderInput(inputId = 'num', label= 'choose a number', value=25, min=1, max=100)
+```
+
+  
+## 3. Input Functions  
+Couple of examples. For more ideas: https://shiny.rstudio.com/tutorial/written-tutorial/lesson3/
+
+```{r echo=TRUE}
+library(shiny)
+# Create the UI with HTML function
+ui <- fluidPage(h3("Slider"),
+  sliderInput(inputId = 'num', label= 'choose a number', value=25, min=1, max=100),
+  h3(""),
+  selectInput("select", h3("Select box"), 
+                       choices = list("Choice 1" = 1, "Choice 2" = 2,
+                                      "Choice 3" = 3), selected = 1)
+  # Drop Down
+  # Binary Select
+  # 
+)
+#Create a custom function to create server
+server <- function(input, output, session){}
+shinyApp(ui= ui, server= server)
+```
+
+##  4. Output Functions  
+Output() adds space in the ui for a R object. You need to build the object
+Reference to Output Functions: https://shiny.rstudio.com/reference/shiny/1.0.5/
+
+```{r echo=TRUE}
+library(shiny)
+# Create the UI with HTML function
+ui <- fluidPage(h3("Slider"),
+  sliderInput(inputId = 'num', label= 'choose a number', value=25, min=1, max=100),
+  plotOutput("hist")
+)
+#Create a custom function to create server
+server <- function(input, output, session){}
+shinyApp(ui= ui, server= server)
+```
+
+##  5. 3 rules of server functions  
+
+You tell the server function how to assemble inputs & Outputs  
+Output needs to be built in the server section    
+
+1. Save Objects to display to output$  
+2. Build objects to display with render()  
+3. Reference input values with input$  
+  
+## 6. render() function to build objects to display  
+
+Builds a reactive output to display on the UI  
+
+```{r echo=TRUE}
+library(shiny)
+# Create the UI with HTML function
+ui <- fluidPage(h3("Slider"),
+  sliderInput(inputId = 'num', label= 'choose a number', value=25, min=1, max=100),
+  plotOutput("hist")
+)
+#Create a custom function to create server
+server <- function(input, output, session){
+  output$hist <- renderPlot({
+    title <- '100 random normal values'
+    hist(rnorm(100), main= title)
+  })
+}
+shinyApp(ui= ui, server= server)
+```
+  
+
+## 7. Basics of Reactivity  
+
+Reactivity automatically occurs when a input is used to manipulate the output
+
+```{r echo=TRUE}
+library(shiny)
+# Create the UI with HTML function
+ui <- fluidPage(h3("Slider"),
+  sliderInput(inputId = 'num', label= 'choose a number', value=25, min=1, max=100),
+  plotOutput("hist")
+)
+#Create a custom function to create server
+server <- function(input, output, session){
+  output$hist <- renderPlot({
+    title <- paste0(input$num, ' random normal values')
+    hist(rnorm(input$num), main= title)
+  })
+}
+shinyApp(ui= ui, server= server)
+```
+
+## 8. Basics of Reactivity  
+
+Reactivity automatically occurs when a input is used to manipulate the output
+
+```{r echo=TRUE}
+library(shiny)
+# Create the UI with HTML function
+ui <- fluidPage(h3("Slider"),
+  sliderInput(inputId = 'num', label= 'choose a number', value=25, min=1, max=100),
+  plotOutput("hist")
+)
+#Create a custom function to create server
+server <- function(input, output, session){
+  output$hist <- renderPlot({
+    title <- paste0(input$num, ' random normal values')
+    hist(rnorm(input$num), main= title)
+  })
+}
+shinyApp(ui= ui, server= server)
+```

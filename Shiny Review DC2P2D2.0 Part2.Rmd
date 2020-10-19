@@ -1,0 +1,74 @@
+---
+title: "R/Shiny Review- Data Challenge 2 Phase 2"
+author: "Sumit Dhar"
+date: "10/16/2020"
+output:
+  slidy_presentation: default
+  toc: true
+  ioslides_presentation: default
+  sansfont: Calibri Light
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# 9. reactive() in action  
+
+1. You can call reactive() expression as a function
+2. Reactive expressions **cache** their values and store recent value until invalidated
+
+```{r echo=TRUE}
+library(shiny)
+# Create the UI with HTML function
+ui <- fluidPage(h3("Slider"),
+  sliderInput(inputId = 'num', label= 'choose a number', value=25, min=1, max=100),
+  plotOutput("hist"),
+  verbatimTextOutput("stats")
+)
+#Create a custom function to create server
+server <- function(input, output, session){
+  data <- reactive(rnorm(input$num))
+  output$hist <- renderPlot({
+    title <- paste0(input$num, ' random normal values')
+    hist(data(), main= title)
+  })
+  output$stats <- renderPrint({summary(data())})
+}
+shinyApp(ui= ui, server= server)
+```
+
+# 10. eventReactive()  
+Reactive expression that responds to specific events  
+
+```{r echo=TRUE}
+library(shiny)
+# Create the UI with HTML function
+ui <- fluidPage(h3("Slider"),
+  sliderInput(inputId = 'num', label= 'choose a number', value=25, min=1, max=100),
+  actionButton(inputId = 'Go', label= 'Update'),
+  plotOutput("hist"),
+  verbatimTextOutput("stats")
+)
+#Create a custom function to create server
+server <- function(input, output, session){
+ data <- eventReactive(input$Go, {
+   rnorm(input$num)
+ })
+ output$hist <- renderPlot({
+   hist(rnorm(data()))
+ })
+ output$stats <- renderPrint({summary(data())})
+}
+shinyApp(ui= ui, server= server)
+```
+
+
+## Things to remember  
+- Code Outside server function runs once per R session
+- Code inside server function will be run once per end user
+- Code inside a reactive function will be run once per reaction
+
+
+
